@@ -1,54 +1,58 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { PokemonClient, NamedAPIResource, Pokemon } from "pokenode-ts";
+import React, { useState } from "react";
+import { Pokemon } from "pokenode-ts";
+
+import usePokemonApi from "@/hooks/usePokemonApi";
+import usePokemonFilter from "@/hooks/usePokemonFilter";
 import SearchBar from "@/components/SearchBar";
 import PokemonCard from "@/components/PokemonCard";
 import { Separator } from "@/components/ui/separator";
 
 const Home: React.FC = () => {
-  const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { pokemons, pokemonTypes, loading, error } = usePokemonApi();
+  const [searchResults, setSearchResults] = useState<Pokemon[]>([]);
+  const [searchInput, setSearchInput] = useState<string>("");
+  const [selectedType, setSelectedType] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchPokemon = async () => {
-      const api = new PokemonClient();
+  const {
+    filteredResults,
+    loading: filterLoading,
+    error: errorFilter,
+  } = usePokemonFilter(pokemons, searchInput, selectedType);
 
-      try {
-        const { results } = await api.listPokemons();
-        const pokemonData: Pokemon[] = await Promise.all(
-          results.map(async ({ name }: NamedAPIResource) => {
-            const pokemon: Pokemon = await api.getPokemonByName(name);
-            return pokemon;
-          })
-        );
-        setPokemonList(pokemonData);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching Pokémon:", error);
-        setError("Failed to fetch Pokémon. Please try again later.");
-        setLoading(false);
-      }
-    };
+  React.useEffect(() => {
+    setSearchResults(filteredResults);
+  }, [filteredResults]);
 
-    fetchPokemon();
-  }, []);
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchInput(e.target.value);
+  };
+
+  const handleTypeSelectChange = (type: string | null) => {
+    setSelectedType(type);
+  };
+
+  const errorMsg = error || errorFilter;
 
   return (
     <div className="max-w-lg mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">Pokédex</h1>
-      <SearchBar />
+      <SearchBar
+        onSearchInputChange={handleSearchInputChange}
+        onTypeSelectChange={handleTypeSelectChange}
+        options={pokemonTypes}
+      />
       <Separator className="mb-4" />
 
       {loading ? (
         <p>Loading...</p>
-      ) : error ? (
-        <p className="text-red-500">{error}</p>
+      ) : errorMsg ? (
+        <p className="text-red-500">{errorMsg}</p>
       ) : (
         <div>
-          {pokemonList.map((pokemonData) => (
-            <PokemonCard key={pokemonData.id} pokemon={pokemonData} />
+          {searchResults.map((result) => (
+            <PokemonCard key={result.id} pokemon={result} />
           ))}
         </div>
       )}

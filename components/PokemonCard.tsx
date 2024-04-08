@@ -34,14 +34,14 @@ const PokemonCard: React.FC<PokemonCardProps> = ({ pokemon }) => {
       </div>
       <div>
         <h2 className="text-lg font-semibold">{pokemon.name}</h2>
-        <p className="text-sm text-gray-600">
+        <div className="text-sm text-gray-600">
           Type:
-          {pokemon.types.map((type: { type: { name: string } }) => (
+          {pokemon?.types.map((type: { type: { name: string } }) => (
             <Badge key={type.type.name} className="mr-1" variant="secondary">
               {type.type.name}
             </Badge>
           ))}
-        </p>
+        </div>
         <p className="text-sm text-gray-600">
           Height: {pokemon.height / 10} m | Weight: {pokemon.weight / 10} kg
         </p>
