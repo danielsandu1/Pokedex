@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Pokemon } from "pokenode-ts";
+import { debounce } from "lodash";
 
-import usePokemons from "./usePokemons";
+import { getPokemonByName } from "@/api/pokemonApi";
 
 const usePokemonFilter = (
   pokemonNames: string[],
@@ -11,49 +12,56 @@ const usePokemonFilter = (
   const [filteredResults, setFilteredResults] = useState<Pokemon[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const {
-    fetchPokemonByName,
-    loading: clientLoading,
-    error: clientError,
-  } = usePokemons();
 
   useEffect(() => {
     setLoading(true);
     setError(null);
 
-    let filteredPokemons: Pokemon[] = [];
+    let filteredPokemons: (Pokemon | undefined)[] = [];
 
-    if (searchInput) {
-      const filteredNames = pokemonNames.filter((n) =>
-        n.toLowerCase().includes(searchInput.toLowerCase())
-      );
+    const fetchFilteredPokemons = debounce(async () => {
+      if (searchInput) {
+        const filteredNames = pokemonNames.filter((n) =>
+          n.toLowerCase().includes(searchInput.toLowerCase())
+        );
 
-      Promise.all(
-        filteredNames.map(async (name) => {
-          try {
-            const pokemon = await fetchPokemonByName(name);
-            if (pokemon) {
-              filteredPokemons.push(pokemon);
-            }
-          } catch (error) {
-            console.error(`Error fetching data ${name}:`, error);
-            setError(`Error fetching data ${name}`);
-          }
-        })
-      ).then(() => {
+        try {
+          const pokemonPromises = filteredNames.map(async (name) => {
+            const pokemon = await getPokemonByName(name);
+            return pokemon;
+          });
+
+          const resolvedPokemons = await Promise.all(pokemonPromises);
+          filteredPokemons = resolvedPokemons;
+        } catch (error) {
+          console.error("Error fetching Pokemon:", error);
+          setError("Error fetching Pokemon");
+        }
+
+        filteredPokemons = filteredPokemons.filter(
+          (pokemon) => pokemon !== undefined
+        );
+
         if (selectedType) {
           filteredPokemons = filteredPokemons.filter((pokemon) =>
-            pokemon.types.some((type) => type.type.name === selectedType)
+            pokemon!.types.some((type) => type.type.name === selectedType)
           );
         }
-        setFilteredResults(filteredPokemons);
+
+        setFilteredResults(filteredPokemons as Pokemon[]);
         setLoading(false);
-      });
-    } else {
-      setFilteredResults([]);
-      setLoading(false);
-    }
-  }, [searchInput, selectedType]);
+      } else {
+        setFilteredResults([]);
+        setLoading(false);
+      }
+    }, 100);
+
+    fetchFilteredPokemons();
+
+    return () => {
+      fetchFilteredPokemons.cancel();
+    };
+  }, [pokemonNames, searchInput, selectedType]);
 
   return { filteredResults, loading, error };
 };
