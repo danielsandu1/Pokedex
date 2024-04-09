@@ -7,7 +7,7 @@ import "@/app/globals.css";
 import { getPokemonByName } from "@/api/pokemonApi";
 import { convertHeightToMeters, convertWeightToKilograms } from "@/utils";
 import { Badge } from "@/components/ui";
-import Header from "@/components/Header";
+import Header from "@/components/shared/Header";
 
 interface PokemonPageProps {
   pokemon: Pokemon;

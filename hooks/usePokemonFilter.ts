@@ -14,12 +14,12 @@ const usePokemonFilter = (
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setLoading(true);
     setError(null);
 
     let filteredPokemons: (Pokemon | undefined)[] = [];
 
     const fetchFilteredPokemons = debounce(async () => {
+      setLoading(true);
       if (searchInput) {
         const filteredNames = pokemonNames.filter((n) =>
           n.toLowerCase().includes(searchInput.toLowerCase())
@@ -54,7 +54,7 @@ const usePokemonFilter = (
         setFilteredResults([]);
         setLoading(false);
       }
-    }, 100);
+    }, 300);
 
     fetchFilteredPokemons();
 

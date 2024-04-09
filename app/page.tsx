@@ -8,7 +8,7 @@ import usePokemonFilter from "@/hooks/usePokemonFilter";
 import SearchBar from "@/components/SearchBar";
 import PokemonCard from "@/components/PokemonCard";
 import { Separator } from "@/components/ui/";
-import Header from "@/components/Header";
+import Header from "@/components/shared/Header";
 
 const Home: React.FC = () => {
   const [searchResults, setSearchResults] = useState<Pokemon[]>([]);
