@@ -1,19 +1,21 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pokemon } from "pokenode-ts";
 
 import usePokemonApi from "@/hooks/usePokemonApi";
 import usePokemonFilter from "@/hooks/usePokemonFilter";
 import SearchBar from "@/components/SearchBar";
 import PokemonCard from "@/components/PokemonCard";
-import { Separator } from "@/components/ui/separator";
+import { Separator } from "@/components/ui/";
+import Header from "@/components/Header";
 
 const Home: React.FC = () => {
-  const { pokemons, pokemonTypes, loading, error } = usePokemonApi();
   const [searchResults, setSearchResults] = useState<Pokemon[]>([]);
   const [searchInput, setSearchInput] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string | null>(null);
+
+  const { pokemons, pokemonTypes, loading, error } = usePokemonApi();
 
   const {
     filteredResults,
@@ -21,7 +23,7 @@ const Home: React.FC = () => {
     error: errorFilter,
   } = usePokemonFilter(pokemons, searchInput, selectedType);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setSearchResults(filteredResults);
   }, [filteredResults]);
 
@@ -36,8 +38,9 @@ const Home: React.FC = () => {
   const errorMsg = error || errorFilter;
 
   return (
-    <div className="max-w-lg mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Pokédex</h1>
+    <div className="max-w-lg mx-auto p-4 md:pt-7">
+      <Header />
+
       <SearchBar
         onSearchInputChange={handleSearchInputChange}
         onTypeSelectChange={handleTypeSelectChange}
@@ -45,7 +48,7 @@ const Home: React.FC = () => {
       />
       <Separator className="mb-4" />
 
-      {loading ? (
+      {filterLoading ? (
         <p>Loading...</p>
       ) : errorMsg ? (
         <p className="text-red-500">{errorMsg}</p>
