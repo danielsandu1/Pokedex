@@ -20,14 +20,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
   options,
 }) => {
   return (
-    <div className="flex justify-between mb-4">
+    <div className="sm:flex sm:justify-between mb-4">
       <Input
         placeholder="Type a name"
-        className="mr-4 w-2/3"
+        className="mb-2 sm:mb-0 w-full sm:w-2/3 sm:mr-4"
         onChange={onSearchInputChange}
       />
       <Select onValueChange={onTypeSelectChange}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-full md:w-[180px] sm:w-1/3 ">
           <SelectValue placeholder="Type" />
         </SelectTrigger>
         <SelectContent>
