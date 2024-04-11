@@ -15,11 +15,11 @@ const Home: React.FC = () => {
   const [searchInput, setSearchInput] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string | null>(null);
 
-  const { pokemons, pokemonTypes, loading, error } = usePokemonApi();
+  const { pokemons, pokemonTypes, error: errorPokemon } = usePokemonApi();
 
   const {
     filteredResults,
-    loading: filterLoading,
+    loading,
     error: errorFilter,
   } = usePokemonFilter(pokemons, searchInput, selectedType);
 
@@ -35,7 +35,7 @@ const Home: React.FC = () => {
     setSelectedType(type);
   };
 
-  const errorMsg = error || errorFilter;
+  const errorMsg = errorPokemon || errorFilter;
 
   return (
     <div className="max-w-lg mx-auto p-4 md:pt-7">
@@ -48,8 +48,8 @@ const Home: React.FC = () => {
       />
       <Separator className="mb-4" />
 
-      {filterLoading ? (
         <p>Loading...</p>
+      {loading ? (
       ) : errorMsg ? (
         <p className="text-red-500">{errorMsg}</p>
       ) : (
