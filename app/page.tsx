@@ -8,7 +8,7 @@ import usePokemonFilter from "@/hooks/usePokemonFilter";
 import SearchBar from "@/components/SearchBar";
 import PokemonCard from "@/components/PokemonCard";
 import { Separator } from "@/components/ui/";
-import Header from "@/components/shared/Header";
+import { Header, SkeletonCard } from "@/components/shared/";
 
 const Home: React.FC = () => {
   const [searchResults, setSearchResults] = useState<Pokemon[]>([]);
@@ -48,8 +48,8 @@ const Home: React.FC = () => {
       />
       <Separator className="mb-4" />
 
-        <p>Loading...</p>
       {loading ? (
+        [...Array(3)].map((_, i) => <SkeletonCard key={i} />)
       ) : errorMsg ? (
         <p className="text-red-500">{errorMsg}</p>
       ) : (
